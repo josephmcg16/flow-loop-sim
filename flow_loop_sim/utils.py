@@ -16,19 +16,10 @@ def valve_cv(v):
     -------
     Cv : float
         Control Valve Flow Coefficient [m^3/s]"""
-    return np.polyval(
-        np.array(
-            [
-                12102.56410256,
-                -27935.31468531,
-                23596.62004662,
-                -7652.18531469,
-                1314.06363636,
-                -77.06666667,
-            ]
-        ),
-        v,
-    )
+    coeffs = np.array([-0.26478213, 3.90862164, -6.44491341, 7.45752813, -5.00264694, 1.34623555])
+    return (
+        np.column_stack([v ** (i + 1) for i in range(len(coeffs))]) @ coeffs * 2518.2
+    )[0]
 
 
 def valve_pressure_drop(Qv, v, rho=1000, g=9.81):
@@ -46,10 +37,8 @@ def valve_pressure_drop(Qv, v, rho=1000, g=9.81):
     dP : float
         Control Valve Pressure Drop [Pa]"""
     Cv = valve_cv(v)  # hardcoded flow coefficient (Cv) curve from manufacturer
-    if Cv <= 0:
-        return 1e10
-    if Qv < 0:
-        Qv = 0.0
+    Cv = np.maximum(Cv, 1e-6)
+    Qv = np.maximum(Qv, 0.0)
     return (Qv**2) * 1.76573853211e8 / (Cv**2) * rho * g
 
 
@@ -69,8 +58,7 @@ def pump_pressure_rise(Qt, N=1.0, rho=1000, g=9.81):
     -------
     dp : float
         Pump Pressure Rise [Pa]"""
-    if Qt <= 0:
-        Qt = 0.0
+    Qt = np.maximum(Qt, 0.0)
     return (
         (81 * N**1.5 - 2200 * N * Qt**2) * rho * g
     )  # hardcoded pump flow-dp curve from manufacturer

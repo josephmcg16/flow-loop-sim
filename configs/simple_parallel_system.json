@@ -15,6 +15,9 @@
             "name": "Trench Exit"
         },
         {
+            "name": "Upstream DUT"
+        },
+        {
             "name": "Downstream DUT"
         }
     ],
@@ -33,7 +36,7 @@
             "to_node_name": "Pump Discharge",
             "branch_type": "pump",
             "num_of_pumps": 2,
-            "pump_speed": 1.0,
+            "pump_speed": 0.2,
             "density": 880.0
         },
         {
@@ -41,7 +44,7 @@
             "from_node_name": "Pump Discharge",
             "to_node_name": "Bottom of Tank",
             "branch_type": "control_valve",
-            "valve_travel": 0.14,
+            "valve_travel": 0.3,
             "density": 880.0
         },
         {
@@ -57,9 +60,19 @@
         {
             "name": "Exit From Trench",
             "from_node_name": "Trench Exit",
-            "to_node_name": "Downstream DUT",
+            "to_node_name": "Upstream DUT",
             "branch_type": "static",
             "elevation_change": -5.0,
+            "density": 880.0
+        },
+        {
+            "name": "DUT",
+            "from_node_name": "Upstream DUT",
+            "to_node_name": "Downstream DUT",
+            "branch_type": "pipe",
+            "friction_factor": 0.02,
+            "length": 1.0,
+            "diameter": 0.2032,
             "density": 880.0
         },
         {
@@ -67,7 +80,7 @@
             "from_node_name": "Downstream DUT",
             "to_node_name": "Top of Tank",
             "branch_type": "control_valve",
-            "valve_travel": 1.0,
+            "valve_travel": 0.8,
             "density": 880.0
         },
         {
@@ -75,7 +88,7 @@
             "from_node_name": "Downstream DUT",
             "to_node_name": "Top of Tank",
             "branch_type": "control_valve",
-            "valve_travel": 1.0,
+            "valve_travel": 0.2,
             "density": 880.0
         }
     ]
