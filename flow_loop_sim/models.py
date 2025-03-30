@@ -80,20 +80,18 @@ class Pump(Branch):
         name: str,
         from_node_name: str,
         to_node_name: str,
-        num_of_pumps: int,
         pump_speed: float,
         density: float,
         gravity: float = 9.81,
     ):
         super().__init__(name, from_node_name, to_node_name, branch_type="pump")
-        self.num_of_pumps = num_of_pumps
         self.pump_speed = pump_speed
         self.density = density
         self.gravity = gravity
 
     def calculate_dp(self, flow_rate: float) -> float:
         return pump_pressure_rise(
-            flow_rate / self.num_of_pumps,
+            flow_rate,
             self.pump_speed,
             self.density,
             self.gravity,

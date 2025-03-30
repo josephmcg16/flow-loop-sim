@@ -51,7 +51,6 @@ def create_branch(branch_dict):
             name=branch_dict["name"],
             from_node_name=branch_dict["from_node_name"],
             to_node_name=branch_dict["to_node_name"],
-            num_of_pumps=branch_dict["num_of_pumps"],
             pump_speed=branch_dict["pump_speed"],
             density=branch_dict["density"],
             gravity=branch_dict.get("gravity", 9.81),

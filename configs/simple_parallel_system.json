@@ -23,7 +23,7 @@
     ],
     "branches": [
         {
-            "name": "Buffer Tank",
+            "name": "Through Buffer Tank",
             "from_node_name": "Top of Tank",
             "to_node_name": "Bottom of Tank",
             "branch_type": "static",
@@ -31,12 +31,19 @@
             "density": 880.0
         },
         {
-            "name": "Pump",
+            "name": "Pump 1",
             "from_node_name": "Bottom of Tank",
             "to_node_name": "Pump Discharge",
             "branch_type": "pump",
-            "num_of_pumps": 2,
-            "pump_speed": 0.2,
+            "pump_speed": 0.5,
+            "density": 880.0
+        },
+        {
+            "name": "Pump 2",
+            "from_node_name": "Bottom of Tank",
+            "to_node_name": "Pump Discharge",
+            "branch_type": "pump",
+            "pump_speed": 0.5,
             "density": 880.0
         },
         {
@@ -44,7 +51,7 @@
             "from_node_name": "Pump Discharge",
             "to_node_name": "Bottom of Tank",
             "branch_type": "control_valve",
-            "valve_travel": 0.3,
+            "valve_travel": 0.1,
             "density": 880.0
         },
         {
@@ -53,12 +60,12 @@
             "to_node_name": "Trench Exit",
             "branch_type": "pipe",
             "friction_factor": 0.02,
-            "length": 3.0,
+            "length": 10.0,
             "diameter": 0.2032,
             "density": 880.0
         },
         {
-            "name": "Exit From Trench",
+            "name": "Through Trench Exit",
             "from_node_name": "Trench Exit",
             "to_node_name": "Upstream DUT",
             "branch_type": "static",
@@ -66,12 +73,12 @@
             "density": 880.0
         },
         {
-            "name": "DUT",
+            "name": "DUT ",
             "from_node_name": "Upstream DUT",
             "to_node_name": "Downstream DUT",
             "branch_type": "pipe",
             "friction_factor": 0.02,
-            "length": 1.0,
+            "length": 3.0,
             "diameter": 0.2032,
             "density": 880.0
         },
@@ -80,7 +87,7 @@
             "from_node_name": "Downstream DUT",
             "to_node_name": "Top of Tank",
             "branch_type": "control_valve",
-            "valve_travel": 0.8,
+            "valve_travel": 0.5,
             "density": 880.0
         },
         {
