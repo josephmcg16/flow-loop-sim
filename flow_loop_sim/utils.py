@@ -47,7 +47,7 @@ def valve_pressure_drop(Qv, v, rho=1000, g=9.81):
         Control Valve Pressure Drop [Pa]"""
     Cv = valve_cv(v)  # hardcoded flow coefficient (Cv) curve from manufacturer
     if Cv <= 0:
-        Cv = 1e-99
+        return 1e10
     if Qv < 0:
         Qv = 0.0
     return (Qv**2) * 1.76573853211e8 / (Cv**2) * rho * g

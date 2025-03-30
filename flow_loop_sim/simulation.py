@@ -1,8 +1,6 @@
-from typing import List
 import pandas as pd
 import numpy as np
 from scipy.optimize import fsolve
-from flow_loop_sim.models import Branch, Node
 from flow_loop_sim.factories import create_node, create_branch
 
 
@@ -31,6 +29,7 @@ class Simulation:
 
         def calculate_residuals(x: np.ndarray) -> np.ndarray:
             flowrates = x[: len(self.branches)]
+            flowrates = np.maximum(flowrates, 0.0)  # Ensure non-negative flowrates
             pressures = x[len(self.branches) :]
             for i, node in enumerate(self.nodes):
                 if node.node_type == "reference":
@@ -44,7 +43,8 @@ class Simulation:
             )
 
         return calculate_residuals
-    
+
+
     def solve_steady_state(self) -> np.ndarray:
         flowrates0 = [0.1] * len(self.branches)
         pressures0 = [1e5] * len(self.nodes)
