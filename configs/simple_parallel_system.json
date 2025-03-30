@@ -95,7 +95,7 @@
             "from_node_name": "Downstream DUT",
             "to_node_name": "Top of Tank",
             "branch_type": "control_valve",
-            "valve_travel": 0.2,
+            "valve_travel": 1,
             "density": 880.0
         }
     ]
