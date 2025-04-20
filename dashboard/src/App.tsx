@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./index.css";
+import config from "./config";
+import { runSimulation, SimResult } from "./api";
+import RunButton from "./components/RunButton";
+import BranchTable from "./components/BranchTable";
+import NodeTable from "./components/NodeTable";
+import FlowChart from "./components/FlowChart";
+import PressureChart from "./components/PressureChart";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [data, setData] = useState<SimResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const handleRun = async () => {
+    setLoading(true);
+    setErr(null);
+    try {
+      const res = await runSimulation(config);
+      setData(res);
+    } catch (e: any) {
+      setErr(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="page">
+      <header>
+        <h1>Flow‑Loop Dashboard</h1>
+        <RunButton onClick={handleRun} disabled={loading} />
+        {err && <span className="error">{err}</span>}
+      </header>
 
-export default App
+      {data && (
+        <>
+          <section className="charts">
+            <FlowChart branches={data.branches} />
+            <PressureChart nodes={data.nodes} />
+          </section>
+
+          <section className="tables">
+            <BranchTable branches={data.branches} />
+            <NodeTable nodes={data.nodes} />
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
