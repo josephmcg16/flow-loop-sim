@@ -1,0 +1,107 @@
+// Hard‑coded JSON from configs/simple_parallel_system.json
+// (shortened here – paste the full object)
+const config = {
+    "nodes": [
+        {
+            "name": "Top of Tank",
+            "node_type": "reference",
+            "reference_pressure": 0.0
+        },
+        {
+            "name": "Bottom of Tank"
+        },
+        {
+            "name": "Pump Discharge"
+        },
+        {
+            "name": "Trench Exit"
+        },
+        {
+            "name": "Upstream DUT"
+        },
+        {
+            "name": "Downstream DUT"
+        }
+    ],
+    "branches": [
+        {
+            "name": "Through Buffer Tank",
+            "from_node_name": "Top of Tank",
+            "to_node_name": "Bottom of Tank",
+            "branch_type": "static",
+            "elevation_change": 5.0,
+            "density": 880.0
+        },
+        {
+            "name": "Pump 1",
+            "from_node_name": "Bottom of Tank",
+            "to_node_name": "Pump Discharge",
+            "branch_type": "pump",
+            "pump_speed": 0.5,
+            "density": 880.0
+        },
+        {
+            "name": "Pump 2",
+            "from_node_name": "Bottom of Tank",
+            "to_node_name": "Pump Discharge",
+            "branch_type": "pump",
+            "pump_speed": 0.5,
+            "density": 880.0
+        },
+        {
+            "name": "Bypass Control Valve",
+            "from_node_name": "Pump Discharge",
+            "to_node_name": "Bottom of Tank",
+            "branch_type": "control_valve",
+            "valve_travel": 0.5,
+            "density": 880.0
+        },
+        {
+            "name": "Trench Pipe",
+            "from_node_name": "Pump Discharge",
+            "to_node_name": "Trench Exit",
+            "branch_type": "pipe",
+            "friction_factor": 0.02,
+            "length": 10.0,
+            "diameter": 0.2032,
+            "density": 880.0
+        },
+        {
+            "name": "Through Trench Exit",
+            "from_node_name": "Trench Exit",
+            "to_node_name": "Upstream DUT",
+            "branch_type": "static",
+            "elevation_change": -5.0,
+            "density": 880.0
+        },
+        {
+            "name": "DUT ",
+            "from_node_name": "Upstream DUT",
+            "to_node_name": "Downstream DUT",
+            "branch_type": "pipe",
+            "friction_factor": 0.02,
+            "length": 3.0,
+            "diameter": 0.2032,
+            "density": 880.0
+        },
+        {
+            "name": "Control Valve 1",
+            "from_node_name": "Downstream DUT",
+            "to_node_name": "Top of Tank",
+            "branch_type": "control_valve",
+            "valve_travel": 0.5,
+            "density": 880.0
+        },
+        {
+            "name": "Control Valve 2",
+            "from_node_name": "Downstream DUT",
+            "to_node_name": "Top of Tank",
+            "branch_type": "control_valve",
+            "valve_travel": 1,
+            "density": 880.0
+        }
+    ]
+
+};
+
+export default config;
