@@ -53,7 +53,7 @@ const config = {
             "from_node_name": "Pump Discharge",
             "to_node_name": "Bottom of Tank",
             "branch_type": "control_valve",
-            "valve_travel": 0.1,
+            "valve_travel": 0.5,
             "density": 880.0
         },
         {
