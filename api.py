@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 import pandas as pd
-import json
-
 from flow_loop_sim.simulation import Simulation
 
 app = FastAPI(title="Flow‑Loop Simulation API", version="1.0")
@@ -33,7 +33,6 @@ async def simulate(config: dict):
                 "branch_name": [branch.name for branch in sim.branches],
             }
         )
-
         df_nodes = pd.DataFrame(
             {
                 "pressure (barg)": pressures / 1e5,
@@ -44,6 +43,7 @@ async def simulate(config: dict):
             "branches": df_branches.to_dict(orient="records"),
             "nodes": df_nodes.to_dict(orient="records"),
         }
-        return json.dumps(results)
+        return JSONResponse(content=jsonable_encoder(results))
+
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
