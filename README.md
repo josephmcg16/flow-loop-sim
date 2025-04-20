@@ -1,126 +1,139 @@
-# Flow Loop Simulation
+# Flow Loop Simulation & Dashboard
 
-A Python-based simulation of a **steady-state closed-loop piping network**. This project demonstrates a lumped-parameter (nodal) approach for computing flowrates and pressures in a simple test network. It is designed to serve as an early proof-of-concept **“digital twin”** for a flow-measurement calibration lab, with possible extensions to dynamic controllers, fluid inertia/compliance, and thermal effects. The following uses open source libraries, providing a low-cost solution.
+A Python simulation of a **steady‑state closed‑loop piping network** paired with a lightweight React dashboard. The back end calculates flow‑rates and node pressures via a lumped‑parameter (nodal) model; the front end lets users adjust pump speeds and valve positions in real time and view the results in the browser.
 
-## Table of Contents
+---
 
-- [Flow Loop Simulation](#flow-loop-simulation)
-  - [Table of Contents](#table-of-contents)
+## Table of Contents
+
+- [Flow Loop Simulation \& Dashboard](#flowloopsimulationdashboard)
+  - [Table of Contents](#tableofcontents)
   - [Features](#features)
-  - [Project Structure](#project-structure)
+    - [Simulation engine](#simulation-engine)
+    - [Web dashboard](#web-dashboard)
+  - [Project Structure](#projectstructure)
   - [Installation](#installation)
+    - [Python back end](#python-back-end)
+    - [Node front end](#node-front-end)
   - [Usage](#usage)
+    - [Start the API](#start-the-api)
+    - [Start the dashboard](#start-the-dashboard)
   - [Configuration](#configuration)
-  - [Mathematical Formulation](#mathematical-formulation)
-  - [Future Plans](#future-plans)
+  - [Mathematical Formulation](#mathematicalformulation)
+  - [Future Plans](#futureplans)
 
 ---
 
 ## Features
 
-- **Nodal and Branch Models**: Nodes (junctions or reference pressures) are connected by branches (pipes, pumps, valves).  
-- **Configurable via JSON**: Network topology, component parameters, fluid properties, etc. can be specified in JSON.  
-- **Steady-State Simulation**: Solves a system of mass balance and pressure-flow relationships using `fsolve` from `scipy.optimize`.  
-- **Modular Design**: Each component type (e.g., `Pipe`, `Pump`, `ControlValve`) encapsulates its own pressure-drop (or rise) calculations.  
-- **Extendable to Dynamics**: The architecture is suitable for adding time-dependent mass/inertia, fluid compressibility, and controller dynamics.
+### Simulation engine
+
+- **Nodal & Branch models** – pipes, pumps, control valves, static elevation changes.  
+
+- **JSON‑configurable** – network topology and parameters in plain JSON.  
+
+- **Steady‑state solver** – non‑linear system solved with `scipy.optimize.fsolve`.
+
+### Web dashboard
+
+- **Run button** – posts the current configuration to the API.  
+- **Interactive sliders** – adjust `pump_speed` and `valve_travel` (0 – 1) before each run.  
+- **Plotly charts** – bar charts for branch flow‑rates and node pressures.  
+- **Tables** – numeric view of all branch and node results.
 
 ---
 
-## Project Structure
+## Project Structure
 
 ```plain-text
-flow-loop-sim
-├── configs
-│   └── simple_parallel_system.json
-├── flow_loop_sim
-│   ├── factories.py      # Factory functions for Nodes and Branches
-│   ├── models.py         # Node and Branch classes (Pipe, Pump, ControlValve, etc.)
-│   ├── simulation.py     # Simulation manager (steady-state solver, etc.)
-│   └── utils.py          # Helper utilities for pressure drop/rise calculations
-└── main.py               # Entry point script
+flow-loop-sim/
+│
+├─ api.py                    # FastAPI wrapper exposing /simulate
+├─ main.py                   # CLI entry point
+│
+├─ flow_loop_sim/            # core solver
+│   ├─ factories.py
+│   ├─ models.py
+│   ├─ simulation.py
+│   └─ utils.py
+│
+├─ configs/
+│   └─ simple_parallel_system.json
+│
+└─ dashboard/                # React + TypeScript front‑end
+    ├─ package.json
+    ├─ vite.config.ts
+    └─ src/
+        ├─ App.tsx
+        ├─ api.ts
+        ├─ config.ts
+        ├─ components/
+        │   ├─ ConfigEditor.tsx
+        │   ├─ FlowChart.tsx
+        │   ├─ PressureChart.tsx
+        │   ├─ BranchTable.tsx
+        │   └─ NodeTable.tsx
+        └─ …
 ```
-
-- **`main.py`**: A top-level script that loads the JSON config and runs the simulation.  
-- **`configs/`**: Holds JSON configuration files describing the network’s nodes and branches.  
-- **`flow_loop_sim/`**: Contains the core simulation logic, classes, and utilities.
 
 ---
 
 ## Installation
 
-1. **Clone or Download** this repository.  
-2. **Install Python dependencies** (preferably in a virtual environment) using [pip](https://pypi.org/project/pip/):
+### Python back end
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+python -m venv .venv
+source .venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-3. You can now run the simulation by calling `python main.py` (see [Usage](#usage)).
+### Node front end
+
+```bash
+cd dashboard
+npm install
+```
 
 ---
 
 ## Usage
 
-1. **Check or modify** the `configs/simple_parallel_system.json` file to adjust:
-   - Node definitions (e.g., reference nodes, or junctions).
-   - Branch definitions (pipes, pumps, valves, etc.).
-   - Physical parameters (densities, friction factors, pump speeds, etc.).
+### Start the API
 
-2. **Run**:
+```bash
+uvicorn api:app --reload --port 8000
+```
 
-   ```bash
-   python main.py
-   ```
+### Start the dashboard
 
-   This will:
-   - Parse the JSON config.
-   - Create Node/Branch objects using `flow_loop_sim.factories`.
-   - Assemble and solve the steady-state equations via `flow_loop_sim.simulation.Simulation`.
-   - Plot flowrates by branch and nodal pressures via `plotly`.
+```bash
+cd dashboard
+npm run dev                           # opens http://localhost:5173
+```
 
-3. **Output**:
-   - Bar charts in separate windows showing flowrates in branches and pressures at nodes.
-   - Console logs of the solution vectors (from `fsolve`).
+Open the browser, adjust pump speeds or valve positions with the sliders, and click **Run simulation** to see updated charts and tables.
+
+The command‑line script is still available:
+
+```bash
+python main.py configs/simple_parallel_system.json
+```
 
 ---
 
 ## Configuration
 
-The JSON config defines the network. Example (`simple_parallel_system.json`):
+The network is defined in `configs/simple_parallel_system.json`. Key fields:
 
-```json
-{
-    "nodes": [
-        {
-            "name": "Top of Tank",
-            "node_type": "reference",
-            "reference_pressure": 0.0
-        },
-        {
-            "name": "Bottom of Tank"
-        }
-        // ...
-    ],
-    "branches": [
-        {
-            "name": "Through Buffer Tank",
-            "from_node_name": "Top of Tank",
-            "to_node_name": "Bottom of Tank",
-            "branch_type": "static",
-            "elevation_change": 5.0,
-            "density": 880.0
-        },
-        // ...
-    ]
-}
-```
+| Section    | Field                    | Description                                                               |
+| ---------- | ------------------------ | ------------------------------------------------------------------------- |
+| `nodes`    | `node_type`              | `"reference"` or `"junction"`                                             |
+|            | `reference_pressure`     | Pressure for reference nodes (Pa)                                         |
+| `branches` | `branch_type`            | `"static"`, `"pipe"`, `"pump"`, `"control_valve"`                         |
+|            | Type‑specific parameters | `elevation_change`, `pump_speed`, `valve_travel`, `friction_factor`, etc. |
 
-- **`nodes`**:
-  - `node_type`: `"reference"` or `"junction"`.
-  - `reference_pressure`: Value for reference nodes (e.g., atmospheric).
-- **`branches`**:
-  - `branch_type`: `"static"`, `"pipe"`, `"pump"`, or `"control_valve"`.
-  - Attributes required for each type (e.g., `elevation_change`, `pump_speed`, or friction factor parameters).
+Pump speeds and valve travels are exposed as sliders in the dashboard (`0.0 – 1.0`). All other parameters can be edited directly in the JSON file.
 
 ---
 
@@ -185,10 +198,9 @@ For more details, see the docstrings and the math references in `models.py` and 
 
 ---
 
-## Future Plans
+## Future Plans
 
-- **Dynamic Simulation**: Introduce fluid inertia, pipe compliance, real-time controllers, and solve a system of ODE/DAEs, i.e. systems of ODEs of the form $L\dot{\vec{q}}=A\vec{p}-f(\vec{q})$, $C\dot{\vec{p}}=A^\top\vec{p}$ where $L$ and $C$ are the equivalent lumped "inductance" and "capacitance" terms.
-- **Thermal Effects**: Account for temperature-dependent properties and energy balances.
-- **Advanced Controller Models**: PID loops, cascade controls, or custom logic for pumps and valves. I.e., introducing an additional state variable $\vec{u}$
-which is governed by it's own dynamics, $\dot{\vec{u}}=f_u(\vec{u},t)$
-- **Interface Improvements**: Provide user-friendly GUIs or config editors.
+- Dynamic simulation (fluid inertia, compliance, controller dynamics)  
+- Result history and comparison views  
+- SVG schematic with drag‑and‑drop layout and colour‑by‑pressure  
+- Single‑container deployment serving both API and static dashboard
