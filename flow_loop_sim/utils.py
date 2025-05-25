@@ -85,3 +85,62 @@ def darcy_weisbach_pressure_drop(Qt, f, l, D, rho=1000):
     return (
         4.0 * f * l * Qt**2 / (np.pi**2 * D**5) * rho
     )  # pressure drop along a pipe for fully turbulent flow
+
+
+# Jacobians
+def dvalve_pressure_drop_dflow_rate(Qv, v, rho=1000, g=9.81):
+    """Derivative of Control Valve Pressure Drop w.r.t. Flow Rate
+
+    Parameters
+    ----------
+    Qv : float
+        Control Valve Flowrate [m^3/s]
+    v : float
+        Fraction of maximum valve Travel [-]
+
+    Returns
+    -------
+    dP_dQv : float
+        Derivative of Control Valve Pressure Drop w.r.t. Flow Rate [Pa/m^3/s]"""
+    Cv = valve_cv(v)
+    Cv = np.maximum(Cv, 1e-6)
+    return 2 * Qv * 1.76573853211e8 / (Cv**2) * rho * g
+
+
+def dpump_pressure_rise_dflow_rate(Qt, N=1.0, rho=1000, g=9.81):
+    """Derivative of Pump Pressure Rise w.r.t. Flow Rate
+
+    Parameters
+    ----------
+    Qt : float
+        Total Flowrate [m^3/s]
+    N : float
+        Fraction of maximum Pump Speed [-]
+
+    Returns
+    -------
+    dP_dQt : float
+        Derivative of Pump Pressure Rise w.r.t. Flow Rate [Pa/m^3/s]"""
+    Qt = np.maximum(Qt, 0.0)
+    return 4400 * N * Qt * rho * g
+
+
+def ddarcy_weisbach_pressure_drop_dflow_rate(Qt, f, l, D, rho=1000):
+    """Derivative of Darcy-Weisbach Pressure Drop w.r.t. Flow Rate
+
+    Parameters
+    ----------
+    Qt : float
+        Total Flowrate [m^3/s]
+    f : float
+        Friction Factor [-]
+    l : float
+        Length of Pipe [m]
+    D : float
+        Diameter of Pipe [m]
+
+    Returns
+    -------
+    dP_dQt : float
+        Derivative of Darcy-Weisbach Pressure Drop w.r.t. Flow Rate [Pa/m^3/s]"""
+    return 8.0 * f * l * Qt / (np.pi**2 * D**5) * rho
